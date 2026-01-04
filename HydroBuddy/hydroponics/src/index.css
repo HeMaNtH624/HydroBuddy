@@ -1,0 +1,103 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 140 20% 99%;
+    --foreground: 140 10% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 140 10% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 140 10% 10%;
+
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 190 100% 42%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 140 10% 96%;
+    --muted-foreground: 140 10% 40%;
+
+    --accent: 25 70% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 140 10% 90%;
+    --input: 140 10% 90%;
+    --ring: 142 76% 36%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 140 20% 5%;
+    --foreground: 140 10% 95%;
+
+    --card: 140 20% 10%;
+    --card-foreground: 140 10% 95%;
+
+    --popover: 140 20% 10%;
+    --popover-foreground: 140 10% 95%;
+
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 190 100% 42%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 140 20% 15%;
+    --muted-foreground: 140 10% 70%;
+
+    --accent: 25 70% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 140 20% 20%;
+    --input: 140 20% 20%;
+    --ring: 142 76% 36%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.sensor-card {
+  @apply relative overflow-hidden transition-all hover:shadow-md;
+}
+
+.sensor-card::after {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-br opacity-10 pointer-events-none;
+}
+
+.sensor-card.temp::after {
+  @apply from-hydro-danger/20 to-hydro-warning/20;
+}
+
+.sensor-card.humidity::after {
+  @apply from-hydro-blue-light/20 to-hydro-blue/20;
+}
+
+.sensor-card.tds::after {
+  @apply from-hydro-green-light/20 to-hydro-green/20;
+}
+
+.sensor-card.ph::after {
+  @apply from-hydro-earth-light/20 to-hydro-earth/20;
+}
