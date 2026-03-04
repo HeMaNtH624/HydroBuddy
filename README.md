@@ -1,6 +1,5 @@
-# HydroBuddy Grow System
+🍃# HydroBuddy Grow System
 
-![HydroBuddy Dashboard](dashboard.png)
 *Dashboard view showing real-time sensor readings, historical data chart, and system status with relay indicators.*
 
 HydroBuddy is a smart hydroponics monitoring and control system that helps you grow plants efficiently using IoT technology. It combines hardware sensors with a web-based dashboard to automate and monitor your hydroponic setup.
