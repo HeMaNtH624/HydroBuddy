@@ -1,4 +1,4 @@
-#🍃 HydroBuddy Grow System
+## 🍃 HydroBuddy Grow System
 
 *Dashboard view showing real-time sensor readings, historical data chart, and system status with relay indicators.*
 
