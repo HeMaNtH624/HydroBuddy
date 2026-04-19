@@ -18,7 +18,7 @@ The system provides:
 - Historical data visualization
 - Remote monitoring via web dashboard
 
-![System Controls](controls.png)
+https://delicate-snowflake-270.linkyhost.com
 *Control panel interface with manual relay controls, auto mode toggle, and sensor calibration settings.*
 
 ## Hardware Components
