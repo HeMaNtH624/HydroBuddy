@@ -12,7 +12,7 @@ HydroBuddy continuously monitors key parameters for hydroponics:
 - TDS (Total Dissolved Solids) for nutrient concentration
 - Air humidity
 
-## ⚙ Learn more about this project on https://industry-web-nine.vercel.app/
+## ⚙ Learn more about this project on https://hydro-web-two.vercel.app/
 
 The system provides:
 - Real-time sensor readings
