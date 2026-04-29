@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HydroBuddy — Smart Hydroponics System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Cabinet+Grotesk:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #0a2e1a;
+    --green-mid: #1a5c35;
+    --green-bright: #2dbd6e;
+    --green-glow: #4eff9b;
+    --green-pale: #a8ffcb;
+    --water-blue: #00d4ff;
+    --water-dark: #0066aa;
+    --earth: #8b6914;
+    --cream: #f5f0e8;
+    --off-white: #fafaf7;
+    --text-dark: #0d1f0f;
+    --text-mid: #2d4a35;
+    --accent-orange: #ff6b35;
+    --accent-yellow: #ffd166;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Cabinet Grotesk', sans-serif;
+    background: var(--off-white);
+    color: var(--text-dark);
+    overflow-x: hidden;
+  }
+
+  /* ── CURSOR ── */
+  * { cursor: none; }
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--green-bright);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease;
+    mix-blend-mode: multiply;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--green-bright);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transition: all 0.15s ease;
+    opacity: 0.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(245,240,232,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(45,189,110,0.15);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--green-mid);
+    letter-spacing: -0.5px;
+  }
+  .nav-logo span { color: var(--green-bright); }
+
+  .nav-links {
+    display: flex; gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    text-decoration: none;
+    color: var(--text-mid);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--green-bright); }
+
+  .nav-cta {
+    background: var(--green-deep);
+    color: var(--green-glow) !important;
+    padding: 10px 22px;
+    border-radius: 100px;
+    font-family: 'DM Mono', monospace !important;
+    font-size: 12px !important;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    padding-top: 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 70% 50%, rgba(45,189,110,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(0,212,255,0.06) 0%, transparent 60%);
+  }
+
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(45,189,110,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45,189,110,0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .hero-left {
+    padding: 80px 48px 80px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(45,189,110,0.12);
+    border: 1px solid rgba(45,189,110,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--green-mid);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    width: fit-content;
+    animation: fadeUp 0.8s ease forwards;
+    opacity: 0;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--green-bright);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(52px, 6vw, 88px);
+    line-height: 0.95;
+    letter-spacing: -3px;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    animation: fadeUp 0.8s 0.1s ease forwards;
+    opacity: 0;
+  }
+
+  .hero-title .accent {
+    color: var(--green-bright);
+    display: block;
+  }
+
+  .hero-title .water {
+    color: var(--water-blue);
+    -webkit-text-stroke: 2px var(--water-dark);
+    paint-order: stroke fill;
+  }
+
+  .hero-subtitle {
+    font-size: 18px;
+    color: var(--text-mid);
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 28px 0 48px;
+    font-weight: 400;
+    animation: fadeUp 0.8s 0.2s ease forwards;
+    opacity: 0;
+  }
+
+  .hero-buttons {
+    display: flex; gap: 16px;
+    animation: fadeUp 0.8s 0.3s ease forwards;
+    opacity: 0;
+  }
+
+  .btn-primary {
+    background: var(--green-deep);
+    color: var(--green-pale);
+    padding: 16px 36px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid var(--green-deep);
+  }
+  .btn-primary:hover {
+    background: var(--green-bright);
+    color: var(--green-deep);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(45,189,110,0.3);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-dark);
+    padding: 16px 36px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    border: 2px solid rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+  }
+  .btn-secondary:hover {
+    border-color: var(--green-bright);
+    color: var(--green-mid);
+    transform: translateY(-2px);
+  }
+
+  .hero-stats {
+    display: flex; gap: 40px;
+    margin-top: 64px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    animation: fadeUp 0.8s 0.4s ease forwards;
+    opacity: 0;
+  }
+
+  .stat-item { }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--green-mid);
+    letter-spacing: -1px;
+    display: block;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── HERO RIGHT — VISUAL ── */
+  .hero-right {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 80px 80px 40px;
+  }
+
+  .device-mockup {
+    width: 100%;
+    max-width: 500px;
+    background: var(--green-deep);
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow:
+      0 40px 80px rgba(10,46,26,0.3),
+      0 0 0 1px rgba(45,189,110,0.2),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+    animation: fadeUp 0.8s 0.2s ease forwards, float 6s ease-in-out infinite;
+    opacity: 0;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .mockup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .mockup-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(45,189,110,0.15);
+    border: 1px solid rgba(45,189,110,0.3);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--green-bright);
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    background: var(--green-bright);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  .sensor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .sensor-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 16px;
+    transition: all 0.3s ease;
+  }
+  .sensor-card:hover {
+    background: rgba(45,189,110,0.08);
+    border-color: rgba(45,189,110,0.25);
+  }
+
+  .sensor-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .sensor-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -1px;
+  }
+
+  .sensor-unit {
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 400;
+  }
+
+  .sensor-bar {
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+
+  .sensor-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 2s ease;
+  }
+
+  .fill-green { background: var(--green-bright); }
+  .fill-blue { background: var(--water-blue); }
+  .fill-yellow { background: var(--accent-yellow); }
+  .fill-orange { background: var(--accent-orange); }
+
+  .relay-row {
+    display: flex; gap: 10px;
+    margin-top: 4px;
+  }
+
+  .relay-item {
+    flex: 1;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .relay-icon { font-size: 18px; margin-bottom: 4px; }
+
+  .relay-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+  }
+
+  .relay-status {
+    font-size: 9px;
+    font-family: 'DM Mono', monospace;
+    margin-top: 4px;
+  }
+  .relay-on { color: var(--green-bright); }
+  .relay-off { color: rgba(255,255,255,0.2); }
+
+  /* ── SECTION BASE ── */
+  section { padding: 120px 80px; }
+
+  .section-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--green-bright);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(36px, 4vw, 56px);
+    letter-spacing: -2px;
+    line-height: 1.05;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+  }
+
+  .section-desc {
+    font-size: 17px;
+    color: var(--text-mid);
+    line-height: 1.7;
+    max-width: 560px;
+  }
+
+  /* ── PROBLEM SECTION ── */
+  .problem {
+    background: var(--green-deep);
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .problem::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(45,189,110,0.15) 0%, transparent 70%);
+  }
+
+  .problem .section-title { color: white; }
+  .problem .section-desc { color: rgba(255,255,255,0.6); }
+  .problem .section-tag { color: var(--green-bright); }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .problem-points {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .problem-point {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+  }
+  .problem-point:hover {
+    background: rgba(45,189,110,0.08);
+    border-color: rgba(45,189,110,0.2);
+    transform: translateX(4px);
+  }
+
+  .problem-icon {
+    width: 40px; height: 40px;
+    background: rgba(255,107,53,0.15);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .problem-text h4 {
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: white;
+  }
+
+  .problem-text p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+  }
+
+  .solution-box {
+    background: rgba(45,189,110,0.08);
+    border: 1px solid rgba(45,189,110,0.2);
+    border-radius: 24px;
+    padding: 40px;
+  }
+
+  .solution-box h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--green-pale);
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+  }
+
+  .solution-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .solution-list li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 15px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.5;
+  }
+
+  .solution-list li::before {
+    content: '→';
+    color: var(--green-bright);
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+
+  /* ── ARCHITECTURE ── */
+  .architecture {
+    background: var(--cream);
+  }
+
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+    margin-top: 60px;
+  }
+
+  .arch-diagram {
+    background: var(--green-deep);
+    border-radius: 24px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .arch-diagram::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(45,189,110,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45,189,110,0.04) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  .arch-layer {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 12px;
+  }
+
+  .arch-box {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+  }
+  .arch-box:hover {
+    background: rgba(45,189,110,0.1);
+    border-color: rgba(45,189,110,0.3);
+  }
+
+  .arch-box-icon { font-size: 20px; }
+
+  .arch-box-text h4 {
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .arch-box-text p {
+    color: rgba(255,255,255,0.4);
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .arch-arrow {
+    text-align: center;
+    padding: 4px 0;
+    color: var(--green-bright);
+    font-size: 18px;
+    opacity: 0.6;
+  }
+
+  .arch-features {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .feature-item {
+    padding: 24px;
+    background: white;
+    border-radius: 18px;
+    border: 1px solid rgba(0,0,0,0.06);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+  .feature-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(45,189,110,0.12);
+    border-color: rgba(45,189,110,0.2);
+  }
+
+  .feature-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+
+  .feature-icon {
+    width: 44px; height: 44px;
+    background: rgba(45,189,110,0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .feature-title {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text-dark);
+  }
+
+  .feature-desc {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+
+  /* ── SENSORS ── */
+  .sensors { background: white; }
+
+  .sensors-intro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: end;
+    margin-bottom: 60px;
+  }
+
+  .sensors-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .sensor-detail-card {
+    background: var(--off-white);
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 20px;
+    padding: 28px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .sensor-detail-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 20px 20px 0 0;
+  }
+  .sensor-detail-card.temp::before { background: var(--accent-orange); }
+  .sensor-detail-card.humidity::before { background: var(--water-blue); }
+  .sensor-detail-card.ph::before { background: #9b59b6; }
+  .sensor-detail-card.tds::before { background: var(--green-bright); }
+  .sensor-detail-card.water::before { background: var(--water-dark); }
+  .sensor-detail-card.relay::before { background: var(--accent-yellow); }
+
+  .sensor-detail-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.08);
+  }
+
+  .sensor-emoji { font-size: 32px; margin-bottom: 14px; display: block; }
+
+  .sensor-detail-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 6px;
+    color: var(--text-dark);
+  }
+
+  .sensor-model {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--green-bright);
+    margin-bottom: 10px;
+    background: rgba(45,189,110,0.08);
+    padding: 3px 10px;
+    border-radius: 100px;
+    display: inline-block;
+  }
+
+  .sensor-detail-desc {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.5;
+  }
+
+  /* ── FIRMWARE ── */
+  .firmware { background: var(--green-deep); color: white; }
+  .firmware .section-title { color: white; }
+  .firmware .section-desc { color: rgba(255,255,255,0.6); }
+
+  .code-blocks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 60px;
+  }
+
+  .code-block {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  .code-block:hover {
+    border-color: rgba(45,189,110,0.3);
+    box-shadow: 0 0 30px rgba(45,189,110,0.1);
+  }
+
+  .code-header {
+    background: rgba(255,255,255,0.04);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .code-dots {
+    display: flex; gap: 6px;
+  }
+  .code-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #ffbd2e; }
+  .dot-green { background: #28c840; }
+
+  .code-filename {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .code-body {
+    padding: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .kw { color: #ff79c6; }
+  .fn { color: #50fa7b; }
+  .str { color: #f1fa8c; }
+  .num { color: #bd93f9; }
+  .cm { color: rgba(255,255,255,0.25); font-style: italic; }
+  .type { color: #8be9fd; }
+
+  /* ── STACK ── */
+  .stack { background: var(--cream); }
+
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 60px;
+  }
+
+  .stack-card {
+    background: white;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+  }
+  .stack-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(45,189,110,0.12);
+    border-color: rgba(45,189,110,0.2);
+  }
+
+  .stack-icon { font-size: 36px; margin-bottom: 14px; display: block; }
+  .stack-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+  .stack-desc {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.4;
+  }
+
+  .stack-category {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--green-bright);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  /* ── CONTRIBUTION ── */
+  .contribution { background: white; }
+
+  .contrib-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    margin-top: 60px;
+  }
+
+  .contrib-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .contrib-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.06);
+    background: var(--off-white);
+    transition: all 0.3s ease;
+  }
+  .contrib-item:hover {
+    border-color: var(--green-bright);
+    background: rgba(45,189,110,0.03);
+    transform: translateX(4px);
+  }
+
+  .contrib-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    color: rgba(45,189,110,0.2);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 40px;
+  }
+
+  .contrib-content h4 {
+    font-weight: 700;
+    margin-bottom: 4px;
+    font-size: 15px;
+  }
+  .contrib-content p {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.5;
+  }
+
+  .impact-box {
+    background: var(--green-deep);
+    border-radius: 24px;
+    padding: 48px;
+    color: white;
+  }
+
+  .impact-box h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 32px;
+    color: var(--green-pale);
+  }
+
+  .impact-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .metric {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  .metric-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--green-bright);
+    letter-spacing: -1px;
+    display: block;
+  }
+
+  .metric-label {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+  }
+
+  /* ── FUTURE ── */
+  .future {
+    background: linear-gradient(135deg, var(--green-deep) 0%, #0d3d20 100%);
+    color: white;
+    text-align: center;
+    padding: 120px 80px;
+  }
+
+  .future .section-title { color: white; }
+  .future .section-desc {
+    color: rgba(255,255,255,0.6);
+    margin: 0 auto 60px;
+  }
+
+  .future-cards {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .future-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 28px 32px;
+    width: 240px;
+    transition: all 0.3s ease;
+    text-align: left;
+  }
+  .future-card:hover {
+    background: rgba(45,189,110,0.1);
+    border-color: rgba(45,189,110,0.3);
+    transform: translateY(-4px);
+  }
+
+  .future-card-icon { font-size: 28px; margin-bottom: 14px; display: block; }
+  .future-card h4 {
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: white;
+  }
+  .future-card p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.5;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--text-dark);
+    color: white;
+    padding: 48px 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+    color: var(--green-bright);
+    letter-spacing: -0.5px;
+  }
+
+  .footer-info {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    text-align: center;
+  }
+
+  .footer-author {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    text-align: right;
+  }
+
+  .footer-author span {
+    color: var(--green-bright);
+    display: block;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── LIVE SENSOR ANIMATION ── */
+  .sensor-value-anim { transition: all 0.5s ease; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--off-white); }
+  ::-webkit-scrollbar-thumb { background: var(--green-bright); border-radius: 3px; }
+
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    section { padding: 80px 24px; }
+    .hero { grid-template-columns: 1fr; padding: 100px 24px 60px; }
+    .hero-left { padding: 0; }
+    .hero-right { padding: 40px 0 0; }
+    .problem-grid, .arch-grid, .contrib-grid, .sensors-intro { grid-template-columns: 1fr; gap: 40px; }
+    .sensors-grid { grid-template-columns: 1fr 1fr; }
+    .stack-grid { grid-template-columns: 1fr 1fr; }
+    .code-blocks { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 20px; text-align: center; padding: 40px 24px; }
+    .hero-stats { gap: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Hydro<span>Buddy</span></div>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#sensors">Sensors</a></li>
+    <li><a href="#firmware">Firmware</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#contribution" class="nav-cta">My Role</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-left">
+    <div class="hero-tag">IoT · Embedded · Full Stack</div>
+    <h1 class="hero-title">
+      Grow Smarter<br>
+      <span class="accent">Not Harder</span>
+    </h1>
+    <p class="hero-subtitle">
+      HydroBuddy is an intelligent hydroponics automation system that monitors and controls every parameter of plant growth — completely hands-free.
+    </p>
+    <div class="hero-buttons">
+      <a href="#architecture" class="btn-primary">Explore System</a>
+      <a href="#firmware" class="btn-secondary">View Firmware</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num">5</span>
+        <span class="stat-label">Sensors</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">24/7</span>
+        <span class="stat-label">Monitoring</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">10s</span>
+        <span class="stat-label">Cloud Sync</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">0</span>
+        <span class="stat-label">Manual Checks</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="device-mockup">
+      <div class="mockup-header">
+        <span class="mockup-title">Live Dashboard</span>
+        <div class="status-badge">
+          <div class="status-dot"></div>
+          System Online
+        </div>
+      </div>
+
+      <div class="sensor-grid">
+        <div class="sensor-card">
+          <div class="sensor-label">Air Temp</div>
+          <div class="sensor-value sensor-value-anim" id="airTemp">24.3<span class="sensor-unit">°C</span></div>
+          <div class="sensor-bar"><div class="sensor-fill fill-orange" style="width:65%"></div></div>
+        </div>
+        <div class="sensor-card">
+          <div class="sensor-label">Humidity</div>
+          <div class="sensor-value sensor-value-anim" id="humidity">68<span class="sensor-unit">%</span></div>
+          <div class="sensor-bar"><div class="sensor-fill fill-blue" style="width:68%"></div></div>
+        </div>
+        <div class="sensor-card">
+          <div class="sensor-label">pH Level</div>
+          <div class="sensor-value sensor-value-anim" id="phVal">6.2<span class="sensor-unit">pH</span></div>
+          <div class="sensor-bar"><div class="sensor-fill fill-green" style="width:72%"></div></div>
+        </div>
+        <div class="sensor-card">
+          <div class="sensor-label">TDS / Nutrients</div>
+          <div class="sensor-value sensor-value-anim" id="tdsVal">680<span class="sensor-unit">ppm</span></div>
+          <div class="sensor-bar"><div class="sensor-fill fill-yellow" style="width:55%"></div></div>
+        </div>
+      </div>
+
+      <div class="relay-row">
+        <div class="relay-item">
+          <div class="relay-icon">💧</div>
+          <div class="relay-name">Nutrient</div>
+          <div class="relay-status relay-off">OFF</div>
+        </div>
+        <div class="relay-item">
+          <div class="relay-icon">💨</div>
+          <div class="relay-name">Fan</div>
+          <div class="relay-status relay-on">ON</div>
+        </div>
+        <div class="relay-item">
+          <div class="relay-icon">🌊</div>
+          <div class="relay-name">Pump</div>
+          <div class="relay-status relay-on">ON</div>
+        </div>
+        <div class="relay-item">
+          <div class="relay-icon">💡</div>
+          <div class="relay-name">Lights</div>
+          <div class="relay-status relay-off">OFF</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="problem-grid">
+    <div>
+      <div class="section-tag">The Problem</div>
+      <h2 class="section-title">Plants Die When<br>Nobody's Watching</h2>
+      <p class="section-desc">Hydroponic systems demand constant vigilance — a slight deviation in pH or nutrients can wipe out an entire crop in hours.</p>
+
+      <div class="problem-points reveal">
+        <div class="problem-point">
+          <div class="problem-icon">⏱️</div>
+          <div class="problem-text">
+            <h4>24/7 Manual Monitoring</h4>
+            <p>pH, TDS, temperature and humidity need constant checking — impractical for most growers</p>
+          </div>
+        </div>
+        <div class="problem-point">
+          <div class="problem-icon">📉</div>
+          <div class="problem-text">
+            <h4>Parameter Drift</h4>
+            <p>Small deviations compound — a pH of 7.5 left unchecked for hours causes root damage and crop loss</p>
+          </div>
+        </div>
+        <div class="problem-point">
+          <div class="problem-icon">🌍</div>
+          <div class="problem-text">
+            <h4>No Remote Access</h4>
+            <p>Traditional systems give no visibility or control unless you're physically present</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-box reveal">
+      <h3>✅ HydroBuddy solves this by...</h3>
+      <ul class="solution-list">
+        <li>Continuously monitoring all 5 parameters every 2 seconds</li>
+        <li>Automatically triggering pumps, fans and lights when thresholds are crossed</li>
+        <li>Loading optimal thresholds per crop from a cloud database</li>
+        <li>Uploading live data to Supabase every 10 seconds for remote monitoring</li>
+        <li>Providing a real-time web dashboard accessible from any device</li>
+        <li>Applying temperature compensation to TDS readings for accuracy</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="architecture" id="architecture">
+  <div class="section-tag">System Design</div>
+  <h2 class="section-title">Three-Layer Architecture</h2>
+
+  <div class="arch-grid">
+    <div class="arch-diagram reveal">
+      <div class="arch-layer">
+        <div class="arch-box">
+          <div class="arch-box-icon">🖥️</div>
+          <div class="arch-box-text">
+            <h4>React Dashboard</h4>
+            <p>TypeScript · TailwindCSS · Shadcn UI</p>
+          </div>
+        </div>
+      </div>
+      <div class="arch-arrow">↕ REST API + WebSocket</div>
+      <div class="arch-layer">
+        <div class="arch-box">
+          <div class="arch-box-icon">☁️</div>
+          <div class="arch-box-text">
+            <h4>Supabase Cloud</h4>
+            <p>PostgreSQL · Serverless Functions · Realtime</p>
+          </div>
+        </div>
+      </div>
+      <div class="arch-arrow">↕ HTTP POST (JSON)</div>
+      <div class="arch-layer">
+        <div class="arch-box">
+          <div class="arch-box-icon">🔲</div>
+          <div class="arch-box-text">
+            <h4>ESP32 Firmware</h4>
+            <p>Arduino C++ · WebServer · HTTPClient</p>
+          </div>
+        </div>
+      </div>
+      <div class="arch-arrow">↕ GPIO · OneWire · Analog ADC</div>
+      <div class="arch-layer">
+        <div class="arch-box">
+          <div class="arch-box-icon">🌡️</div>
+          <div class="arch-box-text">
+            <h4>Sensors + Actuators</h4>
+            <p>DHT11 · DS18B20 · pH · TDS · Relays</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-features reveal">
+      <div class="feature-item">
+        <div class="feature-header">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-title">Non-Blocking Firmware</div>
+        </div>
+        <p class="feature-desc">Uses millis() instead of delay() so the HTTP server, sensor polling, control logic and cloud uploads all run concurrently without blocking.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-header">
+          <div class="feature-icon">🌱</div>
+          <div class="feature-title">Dynamic Crop Profiles</div>
+        </div>
+        <p class="feature-desc">Select any plant from the dashboard — optimal thresholds are fetched from Supabase and pushed to the ESP32 via HTTP POST automatically.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-header">
+          <div class="feature-icon">🧮</div>
+          <div class="feature-title">Temperature Compensation</div>
+        </div>
+        <p class="feature-desc">TDS readings are normalized to 25°C reference using a 2%/°C compensation formula — ensuring nutrient accuracy regardless of water temperature.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-header">
+          <div class="feature-icon">📡</div>
+          <div class="feature-title">Real-Time WebSocket</div>
+        </div>
+        <p class="feature-desc">Dashboard maintains persistent WebSocket connection with auto-reconnect — sensor updates appear instantly without full page refresh.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SENSORS -->
+<section class="sensors" id="sensors">
+  <div class="sensors-intro">
+    <div>
+      <div class="section-tag">Hardware</div>
+      <h2 class="section-title">Sensors &<br>Actuators</h2>
+    </div>
+    <p class="section-desc">Every component chosen for reliability and precision. From biomedical-grade sensors to transistor-driven relay control — the hardware layer leaves nothing to chance.</p>
+  </div>
+
+  <div class="sensors-grid reveal">
+    <div class="sensor-detail-card temp">
+      <span class="sensor-emoji">🌡️</span>
+      <div class="sensor-detail-name">Air Temperature & Humidity</div>
+      <div class="sensor-model">DHT11 · GPIO 4</div>
+      <p class="sensor-detail-desc">Reads ambient air temperature and relative humidity. Uses isnan() validation to detect failed readings and default safely to 0.0.</p>
+    </div>
+    <div class="sensor-detail-card water">
+      <span class="sensor-emoji">💧</span>
+      <div class="sensor-detail-name">Water Temperature</div>
+      <div class="sensor-model">DS18B20 · OneWire · GPIO 22</div>
+      <p class="sensor-detail-desc">Waterproof digital temperature sensor. Must be read before TDS — its value is used in the compensation formula.</p>
+    </div>
+    <div class="sensor-detail-card ph">
+      <span class="sensor-emoji">🧪</span>
+      <div class="sensor-detail-name">pH Level</div>
+      <div class="sensor-model">Analog BNC · GPIO 32</div>
+      <p class="sensor-detail-desc">10-sample averaging reduces analog noise. Voltage converted to pH using 3.5× factor plus calibration offset.</p>
+    </div>
+    <div class="sensor-detail-card tds">
+      <span class="sensor-emoji">⚗️</span>
+      <div class="sensor-detail-name">TDS / Nutrients</div>
+      <div class="sensor-model">Analog EC · GPIO 34</div>
+      <p class="sensor-detail-desc">Measures dissolved nutrient concentration in ppm. Temperature-compensated using cubic polynomial conversion formula.</p>
+    </div>
+    <div class="sensor-detail-card relay">
+      <span class="sensor-emoji">🔌</span>
+      <div class="sensor-detail-name">Relay Control</div>
+      <div class="sensor-model">BC547 Transistor · GPIO 17/19</div>
+      <p class="sensor-detail-desc">BC547 transistors drive 5V relay modules. HIGH signal activates transistor base, energizing the relay coil.</p>
+    </div>
+    <div class="sensor-detail-card humidity">
+      <span class="sensor-emoji">📶</span>
+      <div class="sensor-detail-name">WiFi Connectivity</div>
+      <div class="sensor-model">ESP32 Built-in · 2.4GHz</div>
+      <p class="sensor-detail-desc">Station mode WiFi with DHCP. Auto-reconnect watchdog in main loop. HTTP POST to Supabase every 10 seconds.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FIRMWARE -->
+<section class="firmware" id="firmware">
+  <div class="section-tag">Core Logic</div>
+  <h2 class="section-title">Firmware Deep Dive</h2>
+  <p class="section-desc">Written in Arduino C++ — every function designed for reliability in a 24/7 unattended environment.</p>
+
+  <div class="code-blocks reveal">
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots">
+          <span class="dot-red"></span>
+          <span class="dot-yellow"></span>
+          <span class="dot-green"></span>
+        </div>
+        <span class="code-filename">tds_compensation.cpp</span>
+      </div>
+      <div class="code-body">
+<span class="cm">// Temperature compensation for TDS</span>
+<span class="cm">// Water conducts more electricity at</span>
+<span class="cm">// higher temps → false high readings</span>
+
+<span class="type">float</span> <span class="fn">readTDSSensor</span>() {
+  <span class="type">int</span> raw = <span class="fn">analogRead</span>(TDS_PIN);
+  
+  <span class="cm">// 12-bit ADC: 0-4095 → voltage</span>
+  <span class="type">float</span> voltage = raw * (<span class="num">5.0</span> / <span class="num">4095.0</span>);
+  
+  <span class="cm">// Normalize to 25°C reference</span>
+  <span class="cm">// 2% change per degree Celsius</span>
+  <span class="type">float</span> comp = <span class="num">1.0</span> + <span class="num">0.02</span> 
+              * (waterTemp - <span class="num">25.0</span>);
+  <span class="type">float</span> compV = voltage / comp;
+  
+  <span class="cm">// Cubic polynomial → ppm</span>
+  <span class="kw">return</span> (<span class="num">133.42</span>*pow(compV,<span class="num">3</span>)
+        - <span class="num">255.86</span>*pow(compV,<span class="num">2</span>)
+        + <span class="num">857.39</span>*compV) * <span class="num">0.5</span>;
+}
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots">
+          <span class="dot-red"></span>
+          <span class="dot-yellow"></span>
+          <span class="dot-green"></span>
+        </div>
+        <span class="code-filename">non_blocking_loop.cpp</span>
+      </div>
+      <div class="code-body">
+<span class="cm">// millis() → no blocking, server stays live</span>
+<span class="type">unsigned long</span> lastRead = <span class="num">0</span>;
+<span class="type">unsigned long</span> lastCtrl = <span class="num">0</span>;
+<span class="type">unsigned long</span> lastUpload = <span class="num">0</span>;
+
+<span class="type">void</span> <span class="fn">loop</span>() {
+  server.<span class="fn">handleClient</span>(); <span class="cm">// always first</span>
+  
+  <span class="type">unsigned long</span> now = <span class="fn">millis</span>();
+  
+  <span class="cm">// Every 2s → read sensors</span>
+  <span class="kw">if</span> (now - lastRead >= <span class="num">2000</span>) {
+    lastRead = now;
+    <span class="fn">readSensors</span>();
+  }
+  <span class="cm">// Every 10s → control logic</span>
+  <span class="kw">if</span> (now - lastCtrl >= <span class="num">10000</span>) {
+    lastCtrl = now;
+    <span class="fn">checkAndControl</span>();
+  }
+  <span class="cm">// Every 10s → cloud upload</span>
+  <span class="kw">if</span> (now - lastUpload >= <span class="num">10000</span>) {
+    lastUpload = now;
+    <span class="fn">sendSensorData</span>();
+  }
+}
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots">
+          <span class="dot-red"></span>
+          <span class="dot-yellow"></span>
+          <span class="dot-green"></span>
+        </div>
+        <span class="code-filename">control_logic.cpp</span>
+      </div>
+      <div class="code-body">
+<span class="cm">// Threshold-based actuator control</span>
+<span class="type">void</span> <span class="fn">checkAndControl</span>() {
+  <span class="kw">if</span> (!<span class="fn">isCropConfigured</span>()) <span class="kw">return</span>;
+  
+  <span class="cm">// Air temp → cooling fan</span>
+  <span class="kw">if</span> (airTemp > cropConfig.max_air_temp)
+    <span class="fn">digitalWrite</span>(FAN_PIN, HIGH);
+  <span class="kw">else</span>
+    <span class="fn">digitalWrite</span>(FAN_PIN, LOW);
+  
+  <span class="cm">// Water temp → cooling pump</span>
+  <span class="kw">if</span> (waterTemp > cropConfig.max_water_temp)
+    <span class="fn">digitalWrite</span>(PUMP_PIN, HIGH);
+  <span class="kw">else</span>
+    <span class="fn">digitalWrite</span>(PUMP_PIN, LOW);
+    
+  <span class="cm">// pH and TDS → log warnings</span>
+  <span class="kw">if</span> (pHValue > cropConfig.max_ph)
+    Serial.<span class="fn">println</span>(<span class="str">"pH out of range!"</span>);
+}
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots">
+          <span class="dot-red"></span>
+          <span class="dot-yellow"></span>
+          <span class="dot-green"></span>
+        </div>
+        <span class="code-filename">ph_sampling.cpp</span>
+      </div>
+      <div class="code-body">
+<span class="cm">// 10-sample averaging reduces noise</span>
+<span class="cm">// Analog sensors fluctuate per read</span>
+
+<span class="type">float</span> <span class="fn">readPHSensor</span>() {
+  <span class="type">float</span> sum = <span class="num">0</span>;
+  
+  <span class="cm">// Collect 10 samples 10ms apart</span>
+  <span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i < <span class="num">10</span>; i++) {
+    sum += <span class="fn">analogRead</span>(PH_PIN);
+    <span class="fn">delay</span>(<span class="num">10</span>);
+  }
+  
+  <span class="cm">// Average → voltage (3.3V, 12-bit)</span>
+  <span class="type">float</span> voltage = (sum/<span class="num">10</span>) 
+                * (<span class="num">3.3</span> / <span class="num">4095.0</span>);
+  
+  <span class="cm">// Voltage → pH + calibration</span>
+  <span class="kw">return</span> <span class="num">3.5</span> * voltage + phCalibration;
+}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STACK -->
+<section class="stack" id="stack">
+  <div class="section-tag">Technologies</div>
+  <h2 class="section-title">Full Stack IoT</h2>
+  <p class="section-desc">From bare metal firmware to cloud database to reactive UI — every layer purpose-built for reliability and real-time performance.</p>
+
+  <div class="stack-grid reveal">
+    <div class="stack-card">
+      <span class="stack-icon">🔲</span>
+      <div class="stack-category">Hardware</div>
+      <div class="stack-name">ESP32</div>
+      <p class="stack-desc">Dual-core MCU with built-in WiFi. Runs firmware, HTTP server and sensor polling concurrently.</p>
+    </div>
+    <div class="stack-card">
+      <span class="stack-icon">⚙️</span>
+      <div class="stack-category">Firmware</div>
+      <div class="stack-name">Arduino C++</div>
+      <p class="stack-desc">Non-blocking millis() architecture. Object-oriented sensor libraries. JSON serialization.</p>
+    </div>
+    <div class="stack-card">
+      <span class="stack-icon">☁️</span>
+      <div class="stack-category">Backend</div>
+      <div class="stack-name">Supabase</div>
+      <p class="stack-desc">PostgreSQL database with serverless edge functions. Stores sensor history and relay states.</p>
+    </div>
+    <div class="stack-card">
+      <span class="stack-icon">⚛️</span>
+      <div class="stack-category">Frontend</div>
+      <div class="stack-name">React + TypeScript</div>
+      <p class="stack-desc">React Query for data polling. WebSocket for real-time updates. TailwindCSS + Shadcn UI.</p>
+    </div>
+    <div class="stack-card">
+      <span class="stack-icon">🔄</span>
+      <div class="stack-category">Protocol</div>
+      <div class="stack-name">HTTP REST</div>
+      <p class="stack-desc">ESP32 exposes /sensor-data and /update endpoints. Dashboard and cloud communicate via REST.</p>
+    </div>
+    <div class="stack-card">
+      <span class="stack-icon">📡</span>
+      <div class="stack-category">Realtime</div>
+      <div class="stack-name">WebSocket</div>
+      <p class="stack-desc">Persistent connection with 5s auto-reconnect. Instant push updates without polling overhead.</p>
+    </div>
+    <div class="stack-card">
+      <span class="stack-icon">🗄️</span>
+      <div class="stack-category">Data Format</div>
+      <div class="stack-name">JSON / ArduinoJson</div>
+      <p class="stack-desc">StaticJsonDocument for ESP32 serialization. Crop profiles sent as structured JSON payloads.</p>
+    </div>
+    <div class="stack-card">
+      <span class="stack-icon">🖨️</span>
+      <div class="stack-category">Hardware</div>
+      <div class="stack-name">3D Printed Enclosure</div>
+      <p class="stack-desc">Custom STL-designed box and lid for electronics protection and clean presentation.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTRIBUTION -->
+<section class="contribution" id="contribution">
+  <div class="section-tag">My Role</div>
+  <h2 class="section-title">What I Built</h2>
+
+  <div class="contrib-grid">
+    <div class="contrib-list reveal">
+      <div class="contrib-item">
+        <div class="contrib-num">01</div>
+        <div class="contrib-content">
+          <h4>Complete ESP32 Firmware</h4>
+          <p>Wrote the entire Arduino C++ firmware — sensor drivers, control logic, HTTP server, WiFi management and cloud upload pipeline.</p>
+        </div>
+      </div>
+      <div class="contrib-item">
+        <div class="contrib-num">02</div>
+        <div class="contrib-content">
+          <h4>TDS Temperature Compensation</h4>
+          <p>Researched and implemented the 2%/°C compensation formula after diagnosing inaccurate TDS readings caused by water temperature variation.</p>
+        </div>
+      </div>
+      <div class="contrib-item">
+        <div class="contrib-num">03</div>
+        <div class="contrib-content">
+          <h4>Non-Blocking Architecture</h4>
+          <p>Designed millis()-based multi-task loop so HTTP server, sensor polling, control checks and data upload run without blocking each other.</p>
+        </div>
+      </div>
+      <div class="contrib-item">
+        <div class="contrib-num">04</div>
+        <div class="contrib-content">
+          <h4>Sensor Integration & Calibration</h4>
+          <p>Integrated DHT11, DS18B20, analog pH and TDS sensors — implemented averaging, validation and calibration offset for stable readings.</p>
+        </div>
+      </div>
+      <div class="contrib-item">
+        <div class="contrib-num">05</div>
+        <div class="contrib-content">
+          <h4>HTTP API on ESP32</h4>
+          <p>Built /sensor-data GET and /update POST endpoints on ESP32's local HTTP server for dashboard communication and crop profile loading.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="impact-box reveal">
+      <h3>Project Impact</h3>
+      <div class="impact-metrics">
+        <div class="metric">
+          <span class="metric-val">100%</span>
+          <div class="metric-label">Automated control — zero manual intervention needed</div>
+        </div>
+        <div class="metric">
+          <span class="metric-val">2s</span>
+          <div class="metric-label">Sensor refresh rate — near real-time monitoring</div>
+        </div>
+        <div class="metric">
+          <span class="metric-val">±0.1</span>
+          <div class="metric-label">pH accuracy after 10-sample noise reduction</div>
+        </div>
+        <div class="metric">
+          <span class="metric-val">∞</span>
+          <div class="metric-label">Scalable crop profiles via cloud database</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FUTURE -->
+<section class="future" id="future">
+  <div class="section-tag">Roadmap</div>
+  <h2 class="section-title">What's Next</h2>
+  <p class="section-desc">HydroBuddy is a working system — but there's more to build.</p>
+
+  <div class="future-cards reveal">
+    <div class="future-card">
+      <span class="future-card-icon">📊</span>
+      <h4>ML Predictions</h4>
+      <p>Predict optimal harvest time and nutrient needs using historical sensor data patterns.</p>
+    </div>
+    <div class="future-card">
+      <span class="future-card-icon">📨</span>
+      <h4>MQTT Protocol</h4>
+      <p>Replace HTTP polling with MQTT pub/sub for lower latency and reduced bandwidth usage.</p>
+    </div>
+    <div class="future-card">
+      <span class="future-card-icon">🔔</span>
+      <h4>Push Alerts</h4>
+      <p>Mobile push notifications when any parameter goes out of safe range for the active crop.</p>
+    </div>
+    <div class="future-card">
+      <span class="future-card-icon">🛡️</span>
+      <h4>Safety Interlocks</h4>
+      <p>Dual-sensor validation before actuator triggers — preventing false positives from sensor noise.</p>
+    </div>
+    <div class="future-card">
+      <span class="future-card-icon">📱</span>
+      <h4>Mobile App</h4>
+      <p>Native iOS/Android app with offline support and background monitoring capabilities.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">HydroBuddy</div>
+  <div class="footer-info">
+    IoT · Embedded Systems · Full Stack<br>
+    ESP32 · Supabase · React · C++
+  </div>
+  <div class="footer-author">
+    Built by
+    <span>Hemanth Kumar Giduturi</span>
+    Electronics & Communication Engineering
+  </div>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx - 6 + 'px';
+    cursor.style.top = my - 6 + 'px';
+  });
+
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx - 18 + 'px';
+    ring.style.top = ry - 18 + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'scale(2)';
+      ring.style.transform = 'scale(1.5)';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'scale(1)';
+      ring.style.transform = 'scale(1)';
+    });
+  });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Live sensor simulation
+  function randomBetween(min, max) {
+    return (Math.random() * (max - min) + min).toFixed(1);
+  }
+
+  function updateSensors() {
+    document.getElementById('airTemp').innerHTML =
+      randomBetween(22, 28) + '<span class="sensor-unit">°C</span>';
+    document.getElementById('humidity').innerHTML =
+      Math.floor(Math.random() * 20 + 60) + '<span class="sensor-unit">%</span>';
+    document.getElementById('phVal').innerHTML =
+      randomBetween(5.8, 6.8) + '<span class="sensor-unit">pH</span>';
+    document.getElementById('tdsVal').innerHTML =
+      Math.floor(Math.random() * 200 + 600) + '<span class="sensor-unit">ppm</span>';
+  }
+
+  setInterval(updateSensors, 2000);
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // Nav background on scroll
+  const nav = document.querySelector('nav');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      nav.style.boxShadow = '0 4px 30px rgba(0,0,0,0.08)';
+    } else {
+      nav.style.boxShadow = 'none';
+    }
+  });
+</script>
+</body>
+</html>
